@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: fitfusion-api
+  namespace: fitfusion
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: fitfusion-api
+
+  template:
+    metadata:
+      labels:
+        app: fitfusion-api
+
+    spec:
+      containers:
+        - name: fitfusion-api
+          image: vkovelkar/fitfusion-api:1.0
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 80
+
+          envFrom:
+            - configMapRef:
+                name: fitfusion-api-config
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+
+          startupProbe:
+            httpGet:
+              path: /api/health
+              port: 80
+            failureThreshold: 30
+            periodSeconds: 5
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3

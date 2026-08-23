@@ -8,7 +8,7 @@ url = "http://localhost:7071/api/tools/execute"
 payload = {
     "tool": "fitness.complete_plan",
     "arguments": {
-        "name": "Vijay",
+        "name": "",
         "age": 35,
         "gender": "male",
         "weight": 72.5,
