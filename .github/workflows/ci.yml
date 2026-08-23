@@ -10,6 +10,7 @@ on:
       - main
 
 jobs:
+
   test:
     name: Test FitFusion Application
     runs-on: ubuntu-latest
@@ -39,15 +40,34 @@ jobs:
       - name: Start Azure Functions
         run: |
           func start --port 7071 > function.log 2>&1 &
-          sleep 15
 
-      - name: Check Azure Functions startup
+      - name: Wait for API to become healthy
         run: |
-          cat function.log
+          echo "Waiting for FitFusion API..."
 
-      - name: Run tests
+          for i in {1..30}; do
+            if curl -s http://localhost:7071/api/health > /dev/null; then
+              echo "FitFusion API is ready"
+              exit 0
+            fi
+
+            echo "Attempt $i: API not ready yet..."
+            sleep 2
+          done
+
+          echo "API failed to start"
+          cat function.log
+          exit 1
+
+      - name: Run test suite
         run: |
           pytest tests/ -v
+
+      - name: Show Function logs on failure
+        if: failure()
+        run: |
+          echo "========== FUNCTION LOGS =========="
+          cat function.log
 
 
   docker:
@@ -62,7 +82,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t fitfusion-api:${{ github.sha }} .
+          docker build \
+            -t fitfusion-api:${{ github.sha }} .
 
 
   kubernetes:
@@ -80,4 +101,6 @@ jobs:
 
       - name: Validate Kubernetes manifests
         run: |
-          kubectl apply --dry-run=client -f k8s/
+          kubectl apply \
+            --dry-run=client \
+            -f k8s/
