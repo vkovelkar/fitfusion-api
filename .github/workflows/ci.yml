@@ -42,8 +42,10 @@ jobs:
           func --version
 
       - name: Start Azure Functions
+        env:
+          FUNCTIONS_WORKER_RUNTIME: "python"
         run: |
-          nohup func start --port 7071 > function.log 2>&1 &
+          nohup func start --python --port 7071 > function.log 2>&1 &
           echo $! > function.pid
 
       - name: Wait for Azure Functions
