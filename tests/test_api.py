@@ -1,3 +1,4 @@
+import os
 import requests
 
 
@@ -5,7 +6,11 @@ import requests
 # API CONFIGURATION
 # =========================================================
 
-BASE_URL = "http://localhost:7071"
+#BASE_URL = "http://localhost:7071"
+
+#BASE_URL = "http://localhost:8080"
+
+BASE_URL = os.getenv("BASE_URL", "http://localhost:7071")
 
 EXECUTE_URL = f"{BASE_URL}/api/tools/execute"
 
