@@ -1,8 +1,0 @@
-﻿{
-  "tool": "fitness.recommend",
-  "arguments": {
-    "goal": 123,
-    "diet_preference": "vegetarian",
-    "daily_calories": 2000
-  }
-}
