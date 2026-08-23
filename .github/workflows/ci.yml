@@ -39,12 +39,24 @@ jobs:
 
       - name: Start Azure Functions
         run: |
-          func start --port 7071 > function.log 2>&1 &
-          sleep 15
+          nohup func start --port 7071 > function.log 2>&1 &
+          echo $! > function.pid
 
-      - name: Check Azure Functions startup
+      - name: Wait for Azure Functions
         run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:7071/api/health; then
+              echo "Azure Functions started successfully"
+              exit 0
+            fi
+
+            echo "Waiting for Azure Functions..."
+            sleep 2
+          done
+
+          echo "Azure Functions failed to start"
           cat function.log
+          exit 1
 
       - name: Run tests
         run: |
