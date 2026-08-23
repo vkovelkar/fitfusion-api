@@ -9,6 +9,9 @@ on:
     branches:
       - main
 
+env:
+  DOCKER_IMAGE: vkovelkar/fitfusion-api
+
 jobs:
 
   test:
@@ -37,47 +40,33 @@ jobs:
         run: |
           npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
-      - name: Verify Azure Functions Core Tools
-        run: |
-          func --version
-
       - name: Start Azure Functions
-        env:
-          FUNCTIONS_WORKER_RUNTIME: "python"
         run: |
-          nohup func start --python --port 7071 > function.log 2>&1 &
-          echo $! > function.pid
+          func start --python --port 7071 > function.log 2>&1 &
+          sleep 15
+
+      - name: Check Azure Functions startup
+        run: |
+          cat function.log
 
       - name: Wait for Azure Functions
         run: |
           for i in {1..30}; do
-            echo "Waiting for Azure Functions..."
-            
-            if curl --fail http://localhost:7071/api/health; then
-              echo "Azure Functions started successfully"
+            if curl -f http://localhost:7071/api/health; then
+              echo "Azure Functions is ready"
               exit 0
             fi
 
+            echo "Waiting for Azure Functions..."
             sleep 2
           done
 
           echo "Azure Functions failed to start"
-          echo "========== FUNCTION LOG =========="
-          cat function.log
-          echo "=================================="
-
           exit 1
 
       - name: Run tests
         run: |
           pytest tests/ -v
-
-      - name: Show Function Logs on Failure
-        if: failure()
-        run: |
-          echo "========== FUNCTION LOG =========="
-          cat function.log || true
-          echo "=================================="
 
 
   docker:
@@ -93,8 +82,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
@@ -102,8 +91,8 @@ jobs:
           context: .
           push: true
           tags: |
-            vkovelkar/fitfusion-api:latest
-            vkovelkar/fitfusion-api:${{ github.sha }}
+            ${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+            ${{ env.DOCKER_IMAGE }}:latest
 
 
   kubernetes:
@@ -119,7 +108,6 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
-      - name: Build Kubernetes manifests
+      - name: Validate Kubernetes manifests
         run: |
-          kubectl kustomize k8s/ > rendered-manifests.yaml
-          cat rendered-manifests.yaml
+          kubectl apply --dry-run=client --validate=false -f k8s/
