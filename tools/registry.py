@@ -74,7 +74,6 @@ TOOLS = {
     },
 
 
-    
     "fitness.recommend": {
         "name": "fitness.recommend",
 
@@ -280,6 +279,66 @@ TOOLS = {
                 }
             }
         }
+    },
+
+
+    "fitness.predict_calories": {
+        "name": "fitness.predict_calories",
+
+        "description": (
+            "Predicts calories burned during a workout using a "
+            "trained machine learning model."
+        ),
+
+        "input_schema": {
+            "type": "object",
+
+            "required": [
+                "age",
+                "weight",
+                "height",
+                "duration",
+                "heart_rate",
+                "workout_type"
+            ],
+
+            "properties": {
+
+                "age": {
+                    "type": "number",
+                    "description": "Age in years"
+                },
+
+                "weight": {
+                    "type": "number",
+                    "description": "Weight in kilograms"
+                },
+
+                "height": {
+                    "type": "number",
+                    "description": "Height in centimeters"
+                },
+
+                "duration": {
+                    "type": "number",
+                    "description": "Workout duration in minutes"
+                },
+
+                "heart_rate": {
+                    "type": "number",
+                    "description": "Average heart rate during workout"
+                },
+
+                "workout_type": {
+                    "type": "string",
+                    "enum": [
+                        "Running",
+                        "Cycling",
+                        "Walking",
+                        "Yoga"
+                    ]
+                }
+            }
+        }
     }
 }
-

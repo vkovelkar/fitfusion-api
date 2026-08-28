@@ -1,0 +1,16 @@
+age,weight,height,duration,heart_rate,workout_type,calories_burned
+25,70,175,30,120,Running,320
+30,80,180,45,135,Cycling,450
+28,65,170,25,110,Walking,180
+35,90,178,60,145,Running,650
+22,60,165,30,115,Yoga,140
+40,85,175,50,140,Cycling,520
+32,75,172,40,130,Running,430
+27,68,168,35,125,Walking,230
+45,95,182,60,150,Running,720
+29,72,176,45,138,Cycling,480
+33,78,174,50,142,Running,560
+26,63,169,30,118,Yoga,150
+38,88,180,55,148,Cycling,610
+31,76,177,40,132,Running,470
+24,67,171,35,124,Walking,220

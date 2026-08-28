@@ -2,6 +2,7 @@ from tools.fitness.analyze import analyze_fitness
 from tools.fitness.recommend import recommend_fitness
 from tools.fitness.workout import workout_plan
 from tools.fitness.plan import generate_complete_plan
+from tools.fitness.predict_calories import predict_calories
 
 
 # =========================================================
@@ -12,7 +13,8 @@ TOOL_HANDLERS = {
     "fitness.analyze": analyze_fitness,
     "fitness.recommend": recommend_fitness,
     "fitness.workout_plan": workout_plan,
-    "fitness.complete_plan": generate_complete_plan
+    "fitness.complete_plan": generate_complete_plan,
+    "fitness.predict_calories": predict_calories
 }
 
 

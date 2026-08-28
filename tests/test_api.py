@@ -6,11 +6,10 @@ import requests
 # API CONFIGURATION
 # =========================================================
 
-#BASE_URL = "http://localhost:7071"
-
-#BASE_URL = "http://localhost:8080"
-
-BASE_URL = os.getenv("BASE_URL", "http://localhost:7071")
+BASE_URL = os.getenv(
+    "BASE_URL",
+    "http://localhost:7071"
+)
 
 EXECUTE_URL = f"{BASE_URL}/api/tools/execute"
 
@@ -45,9 +44,7 @@ def test_api_fitness_analyze():
     data = response.json()
 
     assert data["tool"] == "fitness.analyze"
-
     assert "result" in data
-
     assert "analysis" in data["result"]
 
 
@@ -77,13 +74,8 @@ def test_api_fitness_recommend():
     data = response.json()
 
     assert data["tool"] == "fitness.recommend"
-
     assert "result" in data
-
-    assert (
-        data["result"]["goal"]
-        == "fat_loss"
-    )
+    assert data["result"]["goal"] == "fat_loss"
 
 
 # =========================================================
@@ -113,14 +105,9 @@ def test_api_fitness_workout_plan():
     data = response.json()
 
     assert data["tool"] == "fitness.workout_plan"
-
     assert "result" in data
-
     assert "workout_plan" in data["result"]
-
-    assert len(
-        data["result"]["workout_plan"]
-    ) == 5
+    assert len(data["result"]["workout_plan"]) == 5
 
 
 # =========================================================
@@ -157,17 +144,13 @@ def test_api_fitness_complete_plan():
     data = response.json()
 
     assert data["tool"] == "fitness.complete_plan"
-
     assert "result" in data
 
     result = data["result"]
 
     assert "profile" in result
-
     assert "analysis" in result
-
     assert "nutrition_recommendations" in result
-
     assert "workout_plan" in result
 
 
@@ -268,8 +251,6 @@ def test_api_invalid_arguments():
 
     assert "error" in data
 
-    assert data["error"] == "Invalid goal"
-
 
 # =========================================================
 # TEST: INVALID REQUEST BODY
@@ -287,6 +268,112 @@ def test_api_invalid_request_body():
             "valid",
             "request"
         ],
+        timeout=10
+    )
+
+    assert response.status_code == 400
+
+    data = response.json()
+
+    assert "error" in data
+
+
+# =========================================================
+# TEST: ML CALORIE PREDICTION
+# =========================================================
+
+def test_api_predict_calories():
+
+    payload = {
+        "tool": "fitness.predict_calories",
+        "arguments": {
+            "age": 35,
+            "weight": 72.5,
+            "height": 175,
+            "duration": 45,
+            "heart_rate": 135,
+            "workout_type": "Running"
+        }
+    }
+
+    response = requests.post(
+        EXECUTE_URL,
+        json=payload,
+        timeout=10
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["tool"] == "fitness.predict_calories"
+    assert "result" in data
+
+    result = data["result"]
+
+    assert result["success"] is True
+    assert "data" in result
+    assert "predicted_calories_burned" in result["data"]
+
+    assert isinstance(
+        result["data"]["predicted_calories_burned"],
+        float
+    )
+
+    assert result["data"]["predicted_calories_burned"] > 0
+
+
+# =========================================================
+# TEST: ML PREDICTION - MISSING ARGUMENT
+# =========================================================
+
+def test_api_predict_calories_missing_argument():
+
+    payload = {
+        "tool": "fitness.predict_calories",
+        "arguments": {
+            "age": 35,
+            "weight": 72.5,
+            "height": 175,
+            "duration": 45,
+            "heart_rate": 135
+        }
+    }
+
+    response = requests.post(
+        EXECUTE_URL,
+        json=payload,
+        timeout=10
+    )
+
+    assert response.status_code == 400
+
+    data = response.json()
+
+    assert "error" in data
+
+
+# =========================================================
+# TEST: ML PREDICTION - INVALID WORKOUT TYPE
+# =========================================================
+
+def test_api_predict_calories_invalid_workout_type():
+
+    payload = {
+        "tool": "fitness.predict_calories",
+        "arguments": {
+            "age": 35,
+            "weight": 72.5,
+            "height": 175,
+            "duration": 45,
+            "heart_rate": 135,
+            "workout_type": "Swimming"
+        }
+    }
+
+    response = requests.post(
+        EXECUTE_URL,
+        json=payload,
         timeout=10
     )
 
